@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inspiro — agent zakładek</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">💡</span><div><strong>Inspiro</strong><small>agent Twoich zakładek</small></div></div>
+    <nav id="nav">
+      <a href="#pulpit" data-view="pulpit"><span>🏠</span>Pulpit</a>
+      <a href="#zakladki" data-view="zakladki"><span>🔖</span>Zakładki</a>
+      <a href="#pomysly" data-view="pomysly"><span>✨</span>Pomysły</a>
+      <a href="#projekty" data-view="projekty"><span>🧩</span>Projekty</a>
+      <a href="#agent" data-view="agent"><span>🤖</span>Agent</a>
+      <a href="#pamiec" data-view="pamiec"><span>🧠</span>Pamięć</a>
+      <a href="#zrodla" data-view="zrodla"><span>🔌</span>Źródła</a>
+    </nav>
+    <div id="jobs" class="jobs"></div>
+  </aside>
+
+  <main id="main">
+    <!-- PULPIT -->
+    <section id="view-pulpit" class="view">
+      <header class="view-head">
+        <div><h1>Pulpit</h1><p class="muted">Co nowego w Twojej kolekcji i co agent proponuje.</p></div>
+        <div class="actions">
+          <button data-job="sync">⟳ Synchronizuj</button>
+          <button data-job="analyze">🔍 Analizuj nowe</button>
+          <button class="primary" data-job="ideas">✨ Wygeneruj pomysły</button>
+        </div>
+      </header>
+      <div class="cards" id="stat-cards"></div>
+      <div class="grid2">
+        <div class="panel"><h3>Dominujące tematy</h3><div id="top-topics" class="chips"></div></div>
+        <div class="panel"><h3>Technologie, które zapisujesz</h3><div id="top-tech" class="chips"></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Najnowsze propozycje agenta</h3><a href="#pomysly">wszystkie →</a></div>
+        <div id="dash-suggestions" class="sugg-list"></div>
+      </div>
+    </section>
+
+    <!-- ZAKŁADKI -->
+    <section id="view-zakladki" class="view">
+      <header class="view-head">
+        <div><h1>Zakładki</h1><p class="muted">Zapisane posty z Reddita, X i dodane ręcznie linki.</p></div>
+      </header>
+      <form id="items-filter" class="toolbar">
+        <input type="search" name="q" placeholder="Szukaj: np. godot shader, rag, pomysł na grę…">
+        <select name="source"><option value="">Wszystkie źródła</option><option value="reddit">Reddit</option><option value="x">X</option><option value="manual">Ręcznie dodane</option></select>
+        <select name="status"><option value="">Każdy status</option><option value="new">Do analizy</option><option value="analyzed">Przeanalizowane</option><option value="error">Błąd</option></select>
+        <select name="min_usefulness"><option value="">Dowolna przydatność</option><option value="4">★ 4+</option><option value="5">★ 5</option></select>
+        <button type="submit">Filtruj</button>
+      </form>
+      <div id="items-list" class="item-list"></div>
+      <div class="pager"><button id="items-more" class="ghost">Pokaż więcej</button></div>
+    </section>
+
+    <!-- POMYSŁY -->
+    <section id="view-pomysly" class="view">
+      <header class="view-head">
+        <div><h1>Pomysły</h1><p class="muted">Jak użyć zapisanych treści w projektach — i co zbudować nowego.</p></div>
+      </header>
+      <form id="ideas-form" class="panel ideas-gen">
+        <div><strong>Poproś agenta o nowe pomysły</strong><p class="muted small">Agent przejrzy całą kolekcję, Twoje projekty i pamięć.</p></div>
+        <input name="focus" placeholder="Kierunek (opcjonalnie): np. gra mobilna, kanał YouTube o AI, mały SaaS…">
+        <select name="count"><option>3</option><option selected>5</option><option>8</option></select>
+        <button class="primary" type="submit">✨ Generuj</button>
+      </form>
+      <div class="toolbar tabs" id="sugg-tabs">
+        <button data-status="new" class="active">Nowe</button>
+        <button data-status="accepted">Zaakceptowane</button>
+        <button data-status="done">Zrealizowane</button>
+        <button data-status="dismissed">Odrzucone</button>
+        <span class="spacer"></span>
+        <select id="sugg-kind"><option value="">Wszystkie</option><option value="project_use">Do moich projektów</option><option value="new_idea">Nowe przedsięwzięcia</option></select>
+      </div>
+      <div id="sugg-list" class="sugg-list"></div>
+    </section>
+
+    <!-- PROJEKTY -->
+    <section id="view-projekty" class="view">
+      <header class="view-head">
+        <div><h1>Projekty</h1><p class="muted">Agent dopasowuje do nich każdą nową zakładkę. Im lepszy opis, tym trafniejsze sugestie.</p></div>
+      </header>
+      <form id="project-form" class="panel form-grid">
+        <input type="hidden" name="id">
+        <label>Nazwa<input name="name" required placeholder="np. Gra roguelike w Godocie"></label>
+        <label>Status<select name="status"><option value="active">aktywny</option><option value="paused">wstrzymany</option><option value="done">zakończony</option></select></label>
+        <label class="wide">Opis<textarea name="description" rows="2" placeholder="Czym jest projekt, dla kogo, na jakim jest etapie"></textarea></label>
+        <label>Stack / narzędzia<input name="stack" placeholder="np. Godot 4, GDScript, Aseprite"></label>
+        <label>Cele<input name="goals" placeholder="np. demo na Steam Next Fest"></label>
+        <div class="wide row-end"><button type="button" class="ghost" id="project-reset">Wyczyść</button><button class="primary" type="submit">Zapisz projekt</button></div>
+      </form>
+      <div id="projects-list" class="project-list"></div>
+    </section>
+
+    <!-- AGENT -->
+    <section id="view-agent" class="view chat-view">
+      <div class="chat-side">
+        <button class="primary block" id="new-chat">＋ Nowa rozmowa</button>
+        <div id="conv-list" class="conv-list"></div>
+      </div>
+      <div class="chat-main">
+        <div id="chat-log" class="chat-log"></div>
+        <div class="chat-hints" id="chat-hints">
+          <button>Co ostatnio zapisałem i co z tego wynika?</button>
+          <button>Które zakładki przydadzą się w moich projektach? Zaproponuj konkretne kroki.</button>
+          <button>Zaproponuj pomysł na grę, łącząc kilka moich zakładek.</button>
+          <button>Wymyśl serię odcinków na YouTube na podstawie moich zainteresowań.</button>
+        </div>
+        <form id="chat-form" class="chat-form">
+          <textarea name="text" rows="2" placeholder="Zapytaj agenta… (Enter — wyślij, Shift+Enter — nowa linia)"></textarea>
+          <button class="primary" type="submit">Wyślij</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- PAMIĘĆ -->
+    <section id="view-pamiec" class="view">
+      <header class="view-head">
+        <div><h1>Pamięć agenta</h1><p class="muted">Trwałe fakty o Tobie, które agent zapisuje w rozmowach i aktualizuje sam. Możesz je edytować.</p></div>
+      </header>
+      <form id="memory-form" class="toolbar">
+        <input name="category" placeholder="Kategoria (np. umiejętności)" style="max-width:220px">
+        <input name="content" placeholder="Np. Znam Pythona i Godota, mam ~6 h tygodniowo na projekty" required>
+        <button class="primary" type="submit">Dodaj</button>
+      </form>
+      <div id="memory-list"></div>
+    </section>
+
+    <!-- ŹRÓDŁA -->
+    <section id="view-zrodla" class="view">
+      <header class="view-head">
+        <div><h1>Źródła</h1><p class="muted">Skąd agent pobiera Twoje zapisane treści.</p></div>
+      </header>
+      <div class="grid2">
+        <div class="panel source" id="src-reddit"></div>
+        <div class="panel source" id="src-x"></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <h3>📁 Import pliku</h3>
+          <p class="muted small">JSON z bookmarkletu Reddita lub skryptu X, odpowiedź X API, CSV z eksportu danych Reddita (<code>saved_posts.csv</code>), CSV <code>url,title,text</code> albo TXT z linkami (jeden na linię).</p>
+          <input type="file" id="import-file" accept=".json,.csv,.txt,.md">
+          <div id="import-result" class="small"></div>
+        </div>
+        <form class="panel" id="manual-form">
+          <h3>➕ Dodaj ręcznie</h3>
+          <input name="url" placeholder="URL (post, artykuł, repozytorium…)">
+          <input name="title" placeholder="Tytuł (opcjonalnie)">
+          <textarea name="text" rows="3" placeholder="Treść lub Twoja notatka — dlaczego to zapisujesz (opcjonalnie)"></textarea>
+          <button class="primary" type="submit">Dodaj zakładkę</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="drawer" class="drawer hidden"><div class="drawer-body"><button class="close" id="drawer-close">✕</button><div id="drawer-content"></div></div></div>
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
